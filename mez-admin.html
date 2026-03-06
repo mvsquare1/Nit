@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEZ Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f1a; --sidebar:#0f1420; --card:#141927; --card2:#1a2235;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#e8eef8; --muted:#8896b0; --muted2:#5a6a85;
+  --saffron:#ff6b00; --saffron2:#ff8c2a;
+  --green:#22c55e; --green2:#16a34a;
+  --blue:#3b82f6; --blue2:#1d4ed8;
+  --gold:#f59e0b; --red:#ef4444; --purple:#8b5cf6;
+  --teal:#14b8a6; --pink:#ec4899;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{width:256px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;position:fixed;left:0;top:0;z-index:100;overflow-y:auto;}
+.sb-brand{padding:22px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--saffron),#ffb300);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sb-brand h2{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;background:linear-gradient(135deg,#ff8c2a,#ffb300);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sb-brand p{font-size:10px;color:var(--muted);margin-top:1px;}
+.sb-adm{background:rgba(239,68,68,.18);color:var(--red);font-size:9px;font-weight:700;border-radius:4px;padding:2px 6px;margin-left:auto;letter-spacing:.5px;}
+.sb-sec{padding:14px 16px 5px;font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;}
+.sb-nav{padding:3px 8px;display:flex;flex-direction:column;gap:1px;}
+.sbi{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .18s;position:relative;}
+.sbi:hover{background:rgba(255,255,255,.04);color:var(--text);}
+.sbi.active{background:linear-gradient(135deg,rgba(255,107,0,.18),rgba(255,140,42,.07));color:var(--saffron2);font-weight:600;}
+.sbi.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:2px;background:var(--saffron);}
+.sbi-ico{font-size:15px;width:18px;text-align:center;}
+.sbi-cnt{margin-left:auto;background:var(--card2);border-radius:5px;padding:2px 6px;font-size:10px;font-weight:700;color:var(--muted);}
+.sbi.active .sbi-cnt{background:rgba(255,107,0,.2);color:var(--saffron);}
+.sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
+.sb-usr{display:flex;align-items:center;gap:9px;padding:9px;border-radius:9px;cursor:pointer;}
+.sb-usr:hover{background:rgba(255,255,255,.04);}
+.sb-av{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--saffron),#ffb300);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.sb-ui p{font-size:12px;font-weight:600;}
+.sb-ui span{font-size:10px;color:var(--muted);}
+
+/* ── Main ── */
+.main{margin-left:256px;flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:var(--sidebar);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.pg-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{display:flex;align-items:center;gap:6px;border:none;border-radius:9px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;}
+.tb-btn.pr{background:linear-gradient(135deg,var(--saffron),var(--saffron2));color:#fff;box-shadow:0 4px 14px rgba(255,107,0,.3);}
+.tb-btn.pr:hover{transform:translateY(-1px);}
+.tb-btn.sec{background:var(--card2);color:var(--text);border:1px solid var(--border2);}
+.nb-btn{width:34px;height:34px;border-radius:9px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;position:relative;}
+.nb-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:2px solid var(--sidebar);}
+.content{padding:24px;flex:1;}
+
+/* ── Pages ── */
+.page{display:none;}
+.page.active{display:block;animation:pgIn .25s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:currentColor;opacity:.06;transform:translate(18px,-18px);}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:6px;}
+.stat-chg{font-size:11px;display:flex;align-items:center;gap:3px;}
+.stat-chg.up{color:var(--green);} .stat-chg.dn{color:var(--red);}
+.stat-ico{position:absolute;top:18px;right:18px;font-size:22px;opacity:.55;}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.card-hd{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{padding:11px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+.tbl td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:700;}
+.bg-green{background:rgba(34,197,94,.14);color:var(--green);}
+.bg-orange{background:rgba(255,107,0,.14);color:var(--saffron2);}
+.bg-blue{background:rgba(59,130,246,.14);color:var(--blue);}
+.bg-gold{background:rgba(245,158,11,.14);color:var(--gold);}
+.bg-red{background:rgba(239,68,68,.14);color:var(--red);}
+.bg-purple{background:rgba(139,92,246,.14);color:var(--purple);}
+.bg-teal{background:rgba(20,184,166,.14);color:var(--teal);}
+.bg-pink{background:rgba(236,72,153,.14);color:var(--pink);}
+
+/* ── Action buttons ── */
+.act-btns{display:flex;gap:5px;}
+.ab{width:28px;height:28px;border-radius:7px;border:none;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .18s;}
+.ab:hover{transform:scale(1.12);}
+.ab.edit{background:rgba(59,130,246,.15);color:var(--blue);}
+.ab.del{background:rgba(239,68,68,.15);color:var(--red);}
+.ab.view{background:rgba(139,92,246,.15);color:var(--purple);}
+.ab.add{background:rgba(34,197,94,.15);color:var(--green);}
+
+/* ── Forms ── */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.fg input,.fg select,.fg textarea{background:var(--bg);border:1.5px solid var(--border2);border-radius:9px;padding:10px 13px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .18s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--saffron);}
+.fg textarea{resize:vertical;min-height:72px;}
+.fg select option{background:var(--card2);}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--muted2);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fgrid.t3{grid-template-columns:1fr 1fr 1fr;}
+.span2{grid-column:span 2;}
+
+/* ── Two-col ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* ── Modal ── */
+.mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.mover.open{display:flex;animation:mF .2s ease;}
+@keyframes mF{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:26px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;animation:mS .28s ease;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.modal.wide{max-width:860px;}
+@keyframes mS{from{transform:translateY(-18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.m-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.m-hd h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;}
+.m-cls{width:30px;height:30px;border-radius:7px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;color:var(--muted);}
+.m-ft{display:flex;justify-content:flex-end;gap:9px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+.btn{border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;}
+.btn.pr{background:linear-gradient(135deg,var(--saffron),var(--saffron2));color:#fff;box-shadow:0 4px 12px rgba(255,107,0,.28);}
+.btn.pr:hover{transform:translateY(-1px);}
+.btn.sec{background:var(--card2);color:var(--text);border:1px solid var(--border2);}
+.btn.dng{background:var(--red);color:#fff;}
+.btn.grn{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;}
+.btn.blu{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;}
+
+/* ── Breadcrumb ── */
+.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:13px;}
+.bc-sep{color:var(--muted2);}
+.bc-link{color:var(--blue);cursor:pointer;font-weight:600;}
+.bc-link:hover{text-decoration:underline;}
+.bc-cur{color:var(--text);font-weight:700;}
+
+/* ── Package grid ── */
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.pkg-card{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.pkg-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow);}
+.pkg-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.03);transform:translate(18px,-18px);}
+.pk-ico{font-size:28px;margin-bottom:10px;}
+.pk-nm{font-size:14px;font-weight:700;margin-bottom:3px;}
+.pk-meta{font-size:11px;color:var(--muted);}
+.pk-price{position:absolute;top:14px;right:14px;font-size:14px;font-weight:800;color:var(--saffron);}
+.pk-status{position:absolute;bottom:14px;right:14px;}
+.pk-stats{display:flex;gap:10px;margin-top:10px;}
+.pk-stat{background:var(--bg);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--muted);}
+.pk-stat span{color:var(--text);}
+.pkg-add-card{background:transparent;border:2px dashed var(--border2);border-radius:13px;padding:16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px;gap:8px;}
+.pkg-add-card:hover{border-color:var(--saffron);background:rgba(255,107,0,.04);}
+.pkg-add-card p{font-size:13px;color:var(--muted);}
+
+/* ── Test cards ── */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.test-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:15px;cursor:pointer;transition:all .2s;position:relative;}
+.test-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.test-card.selected{border-color:var(--blue);background:rgba(59,130,246,.06);}
+.tc-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.tc-name{font-size:14px;font-weight:700;margin-bottom:5px;}
+.tc-meta{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;}
+.tc-meta-item{display:flex;align-items:center;gap:3px;}
+.tc-actions{position:absolute;top:12px;right:12px;display:flex;gap:4px;}
+.test-add-card{background:transparent;border:2px dashed var(--border2);border-radius:12px;padding:15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;min-height:100px;font-size:13px;color:var(--muted);}
+.test-add-card:hover{border-color:var(--saffron);color:var(--saffron);background:rgba(255,107,0,.04);}
+
+/* ── Question items ── */
+.q-item{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:9px;animation:pgIn .25s ease;}
+.q-item:hover{border-color:var(--border2);}
+.q-hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+.q-num{width:26px;height:26px;border-radius:7px;background:rgba(255,107,0,.15);color:var(--saffron);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.q-txt{font-size:13px;flex:1;line-height:1.5;}
+.q-acts{display:flex;gap:4px;}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px;}
+.q-opt{padding:5px 9px;border-radius:7px;font-size:11px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:5px;}
+.q-opt.cor{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:var(--green);}
+.q-exp{margin-top:6px;padding:7px 10px;border-radius:7px;background:rgba(245,158,11,.07);border-left:3px solid var(--gold);font-size:11px;color:var(--muted);}
+.q-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+
+/* ── Pill ── */
+.pill{display:inline-flex;align-items:center;gap:3px;background:var(--card2);border-radius:5px;padding:2px 8px;font-size:11px;color:var(--muted);border:1px solid var(--border);}
+
+/* ── Upload zone ── */
+.upload-zone{border:2px dashed var(--border2);border-radius:13px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upload-zone:hover,.upload-zone.dov{border-color:var(--saffron);background:rgba(255,107,0,.04);}
+.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+/* ── CSV ── */
+.csv-wrap{overflow-x:auto;max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:9px;}
+.csv-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.csv-tbl th{background:var(--card2);padding:7px 10px;text-align:left;font-weight:700;color:var(--muted);border-bottom:1px solid var(--border);position:sticky;top:0;}
+.csv-tbl td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.03);}
+.csv-tbl tr:last-child td{border-bottom:none;}
+
+/* ── Misc ── */
+.search-inp{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 13px 8px 34px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;width:220px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238896b0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center;}
+.search-inp:focus{border-color:var(--saffron);}
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-ico{font-size:44px;margin-bottom:10px;opacity:.45;}
+.empty h3{font-size:15px;font-weight:600;margin-bottom:5px;}
+.empty p{font-size:12px;}
+.alert{padding:11px 14px;border-radius:9px;font-size:12px;display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+.alert.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.22);color:var(--blue);}
+.alert.warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.22);color:var(--gold);}
+.alert.suc{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:var(--green);}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.scroll-list{max-height:400px;overflow-y:auto;}
+.scroll-list::-webkit-scrollbar{width:3px;}
+.scroll-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--green2);color:#fff;border-radius:11px;padding:13px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:999;}
+.prog-bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s;}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">🏛️</div>
+    <div>
+      <h2>MEZ Admin</h2>
+      <p>Maharashtra Education Zone</p>
+    </div>
+    <div class="sb-adm">ADMIN</div>
+  </div>
+
+  <div class="sb-sec">Main</div>
+  <div class="sb-nav">
+    <div class="sbi active" onclick="nav('dashboard',this)"><span class="sbi-ico">📊</span>Dashboard</div>
+  </div>
+
+  <div class="sb-sec">Content</div>
+  <div class="sb-nav">
+    <div class="sbi" onclick="nav('packages',this)"><span class="sbi-ico">📦</span>Packages<span class="sbi-cnt" id="pkgCntSb">6</span></div>
+    <div class="sbi" onclick="nav('tests',this)"><span class="sbi-ico">📝</span>All Tests<span class="sbi-cnt" id="testCntSb">24</span></div>
+    <div class="sbi" onclick="nav('questions',this)"><span class="sbi-ico">❓</span>All Questions<span class="sbi-cnt" id="qCntSb">147</span></div>
+    <div class="sbi" onclick="nav('bulk',this)"><span class="sbi-ico">⬆️</span>Bulk Upload</div>
+  </div>
+
+  <div class="sb-sec">Manage</div>
+  <div class="sb-nav">
+    <div class="sbi" onclick="nav('students',this)"><span class="sbi-ico">👥</span>Students<span class="sbi-cnt">1,248</span></div>
+    <div class="sbi" onclick="nav('orders',this)"><span class="sbi-ico">💳</span>Orders<span class="sbi-cnt">86</span></div>
+    <div class="sbi" onclick="nav('settings',this)"><span class="sbi-ico">⚙️</span>Settings</div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-usr">
+      <div class="sb-av">A</div>
+      <div class="sb-ui"><p>Admin User</p><span>Super Admin</span></div>
+      <span style="color:var(--muted);font-size:15px;margin-left:auto;">⋯</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="pg-title" id="pgTitle">Dashboard</div>
+    <div class="tb-right">
+      <input class="search-inp" placeholder="Search...">
+      <div class="nb-btn">🔔<div class="nb-dot"></div></div>
+      <button class="tb-btn pr" id="topBtn" onclick="topAction()">+ New Package</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card" style="color:var(--saffron)"><div class="stat-ico">📦</div><div class="stat-lbl">Packages</div><div class="stat-val" style="color:var(--saffron)">6</div><div class="stat-chg up">↑ 2 this month</div></div>
+        <div class="stat-card" style="color:var(--blue)"><div class="stat-ico">📝</div><div class="stat-lbl">Total Tests</div><div class="stat-val" style="color:var(--blue)" id="dashTestCnt">24</div><div class="stat-chg up">↑ 4 this week</div></div>
+        <div class="stat-card" style="color:var(--green)"><div class="stat-ico">👥</div><div class="stat-lbl">Students</div><div class="stat-val" style="color:var(--green)">1,248</div><div class="stat-chg up">↑ 87 today</div></div>
+        <div class="stat-card" style="color:var(--gold)"><div class="stat-ico">💰</div><div class="stat-lbl">Revenue (₹)</div><div class="stat-val" style="color:var(--gold)">2.4L</div><div class="stat-chg up">↑ ₹18,400 today</div></div>
+      </div>
+      <div class="two-col" style="margin-bottom:18px;">
+        <div class="card">
+          <div class="card-hd"><span class="card-t">📦 Packages Overview</span></div>
+          <div style="padding:0;">
+            <table class="tbl">
+              <thead><tr><th>Package</th><th>Tests</th><th>Questions</th><th>Price</th><th>Status</th></tr></thead>
+              <tbody id="dashPkgTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-t">📝 Recent Tests Added</span></div>
+          <div style="padding:0;" id="dashTestList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PACKAGES PAGE ══ -->
+    <div class="page" id="page-packages">
+      <!-- Level 1: Package Grid -->
+      <div id="lvl-packages">
+        <div class="alert info">💡 Click a package to manage its Tests. Each test can have its own set of questions.</div>
+        <div class="pkg-grid" id="pkgGrid"></div>
+      </div>
+
+      <!-- Level 2: Tests inside a Package -->
+      <div id="lvl-tests" style="display:none;">
+        <div class="breadcrumb">
+          <span class="bc-link" onclick="goLevel('packages')">📦 Packages</span>
+          <span class="bc-sep">›</span>
+          <span class="bc-cur" id="bc-pkg">Package Name</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <h2 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;" id="testLvlTitle">Package Tests</h2>
+            <p style="font-size:12px;color:var(--muted);margin-top:3px;" id="testLvlMeta">0 tests · 0 questions</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn sec" onclick="nav('bulk',document.querySelector('[onclick*=bulk]'))">⬆️ Bulk Upload</button>
+            <button class="btn pr" onclick="openTestModal()">+ Add Test</button>
+          </div>
+        </div>
+
+        <!-- Test type breakdown -->
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;" id="typeBreakdown"></div>
+
+        <!-- Test type filter -->
+        <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;" id="testTypeFilter"></div>
+
+        <div class="test-grid" id="testGrid"></div>
+
+        <!-- Package info bar -->
+        <div class="card" style="margin-top:4px;">
+          <div class="card-hd"><span class="card-t">Package Details</span>
+            <button class="btn sec" onclick="openPkgModal(currentPkg.id)" style="font-size:12px;padding:6px 12px;">✏️ Edit Package</button>
+          </div>
+          <div style="padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+            <div style="background:var(--card2);border-radius:9px;padding:12px;text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--saffron);" id="pi-tests">0</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Total Tests</div>
+            </div>
+            <div style="background:var(--card2);border-radius:9px;padding:12px;text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--blue);" id="pi-qs">0</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Total Questions</div>
+            </div>
+            <div style="background:var(--card2);border-radius:9px;padding:12px;text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--gold);" id="pi-price">₹0</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Price</div>
+            </div>
+            <div style="background:var(--card2);border-radius:9px;padding:12px;text-align:center;">
+              <div style="font-size:20px;font-weight:800;color:var(--green);" id="pi-status">Active</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">Status</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level 3: Questions inside a Test -->
+      <div id="lvl-questions" style="display:none;">
+        <div class="breadcrumb">
+          <span class="bc-link" onclick="goLevel('packages')">📦 Packages</span>
+          <span class="bc-sep">›</span>
+          <span class="bc-link" onclick="goLevel('tests')" id="bc-pkg2">Package</span>
+          <span class="bc-sep">›</span>
+          <span class="bc-cur" id="bc-test">Test Name</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <h2 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;" id="qLvlTitle">Test Questions</h2>
+            <p style="font-size:12px;color:var(--muted);margin-top:3px;" id="qLvlMeta"></p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <input class="search-inp" placeholder="Search questions..." oninput="filterTestQs(this.value)">
+            <button class="btn sec" onclick="openBulkForTest()">⬆️ Bulk Upload</button>
+            <button class="btn pr" onclick="openQModal()">+ Add Question</button>
+          </div>
+        </div>
+
+        <!-- Test info strip -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="testInfoStrip"></div>
+
+        <div id="testQsList" class="scroll-list" style="max-height:520px;"></div>
+      </div>
+    </div>
+
+    <!-- ══ ALL TESTS ══ -->
+    <div class="page" id="page-tests">
+      <div style="display:flex;gap:10px;margin-bottom:18px;align-items:center;">
+        <input class="search-inp" placeholder="Search tests..." style="flex:1;width:auto;" oninput="filterAllTests(this.value)">
+        <select style="background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;" onchange="filterTestByPkg(this.value)">
+          <option value="">All Packages</option>
+          <option>तलाठी भरती 2025</option>
+          <option>पोलीस भरती 2025</option>
+          <option>MPSC (PSI/STI/ASO)</option>
+          <option>शिक्षक भरती (TET)</option>
+          <option>आरोग्य विभाग</option>
+          <option>कृषी सेवक</option>
+        </select>
+        <select style="background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;" onchange="filterByTestType(this.value)">
+          <option value="">All Types</option>
+          <option>Mock Test</option>
+          <option>Practice Set</option>
+          <option>Previous Year</option>
+          <option>Topic Test</option>
+          <option>Speed Test</option>
+        </select>
+        <button class="btn pr" onclick="openTestModal()">+ Add Test</button>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-t">All Tests <span class="badge bg-blue" id="allTestBadge">24</span></span>
+        </div>
+        <table class="tbl" id="allTestsTable">
+          <thead><tr><th>Test Name</th><th>Package</th><th>Type</th><th>Questions</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="allTestsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ALL QUESTIONS ══ -->
+    <div class="page" id="page-questions">
+      <div style="display:flex;gap:10px;margin-bottom:18px;align-items:center;flex-wrap:wrap;">
+        <input class="search-inp" placeholder="Search questions..." style="flex:1;width:auto;" oninput="filterAllQs(this.value)">
+        <select style="background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;" onchange="filterQByPkg(this.value)">
+          <option value="">All Packages</option>
+          <option>तलाठी भरती 2025</option><option>पोलीस भरती 2025</option>
+          <option>MPSC (PSI/STI/ASO)</option><option>शिक्षक भरती (TET)</option>
+          <option>आरोग्य विभाग</option><option>कृषी सेवक</option>
+        </select>
+        <select style="background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+          <option>All Tags</option>
+          <option>सामान्य ज्ञान</option><option>इतिहास</option><option>भूगोल</option>
+          <option>गणित</option><option>विज्ञान</option><option>मराठी</option><option>English</option>
+        </select>
+        <button class="btn pr" onclick="openQModal()">+ Add Question</button>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-t">All Questions <span class="badge bg-blue" id="allQBadge">147</span></span></div>
+        <div style="padding:14px;" id="allQsList" class="scroll-list" style="max-height:520px;"></div>
+      </div>
+    </div>
+
+    <!-- ══ BULK UPLOAD ══ -->
+    <div class="page" id="page-bulk">
+      <div class="two-col" style="align-items:start;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-hd"><span class="card-t">⬆️ Upload Questions (CSV / Excel)</span></div>
+            <div style="padding:18px;">
+              <div class="fgrid" style="margin-bottom:14px;">
+                <div class="fg"><label>Package</label>
+                  <select id="bulkPkg" onchange="populateTestDropdown('bulkTest',this.value)"><option value="">Select Package...</option>
+                    <option>तलाठी भरती 2025</option><option>पोलीस भरती 2025</option>
+                    <option>MPSC (PSI/STI/ASO)</option><option>शिक्षक भरती (TET)</option>
+                    <option>आरोग्य विभाग</option><option>कृषी सेवक</option>
+                  </select>
+                </div>
+                <div class="fg"><label>Test</label>
+                  <select id="bulkTest"><option value="">Select Test...</option>
+                  </select>
+                </div>
+              </div>
+              <div class="upload-zone" id="upZone" ondragover="doDrag(event,true)" ondragleave="doDrag(event,false)" ondrop="doDrop(event)">
+                <input type="file" accept=".csv,.xlsx,.xls" onchange="doFile(event)">
+                <div style="font-size:38px;margin-bottom:10px;">📂</div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:5px;">Drop CSV or Excel file here</div>
+                <div style="font-size:12px;color:var(--muted);">or click to browse · Max 10MB</div>
+              </div>
+              <div id="upProg" style="display:none;margin-top:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span id="upFile">file.csv</span><span id="upPct">0%</span></div>
+                <div class="prog-bar"><div class="prog-fill" id="upFill" style="width:0%;background:linear-gradient(90deg,var(--saffron),var(--saffron2));"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><span class="card-t">📋 CSV Column Format</span></div>
+            <div style="padding:16px;">
+              <div class="alert warn">⚠️ Columns must be in this exact order</div>
+              <div class="csv-wrap">
+                <table class="csv-tbl">
+                  <thead><tr><th>question</th><th>option_a</th><th>option_b</th><th>option_c</th><th>option_d</th><th>correct</th><th>explanation</th><th>tag</th><th>marks</th></tr></thead>
+                  <tbody><tr><td style="color:var(--muted)">महाराष्ट्राची राजधानी?</td><td style="color:var(--muted)">पुणे</td><td style="color:var(--muted)">मुंबई</td><td style="color:var(--muted)">नागपूर</td><td style="color:var(--muted)">औरंगाबाद</td><td style="color:var(--green)">b</td><td style="color:var(--muted)">मुंबई राजधानी...</td><td style="color:var(--muted)">सामान्य ज्ञान</td><td style="color:var(--muted)">1</td></tr></tbody>
+                </table>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn sec" onclick="dlTemplate()">⬇️ Download Template</button>
+                <button class="btn sec" onclick="dlSample()">📄 Sample CSV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card" id="csvPrevCard" style="display:none;">
+            <div class="card-hd">
+              <span class="card-t">👁️ Preview</span>
+              <div style="display:flex;gap:6px;"><span class="badge bg-green" id="csvGood">0 valid</span><span class="badge bg-red" id="csvBad">0 errors</span></div>
+            </div>
+            <div style="padding:14px;">
+              <div class="csv-wrap" id="csvPrevContent"></div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button class="btn pr" onclick="doImport()">✅ Import Questions</button>
+                <button class="btn sec" onclick="cancelImport()">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><span class="card-t">📜 Upload History</span></div>
+            <table class="tbl">
+              <thead><tr><th>File</th><th>Package → Test</th><th>Qs</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>talathi_mock1.csv</td><td>तलाठी → Mock Test 1</td><td>50</td><td><span class="badge bg-green">Done</span></td></tr>
+                <tr><td>police_set2.xlsx</td><td>पोलीस → Practice Set 2</td><td>100</td><td><span class="badge bg-green">Done</span></td></tr>
+                <tr><td>mpsc_prev_2023.csv</td><td>MPSC → Prev Year 2023</td><td>200</td><td><span class="badge bg-green">Done</span></td></tr>
+                <tr><td>teacher_tet.csv</td><td>शिक्षक → Topic: Child Psych</td><td>75</td><td><span class="badge bg-red">3 Errors</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STUDENTS ══ -->
+    <div class="page" id="page-students">
+      <div class="stats-grid" style="margin-bottom:18px;">
+        <div class="stat-card" style="color:var(--green)"><div class="stat-ico">👥</div><div class="stat-lbl">Total</div><div class="stat-val" style="color:var(--green)">1,248</div><div class="stat-chg up">↑ 87 today</div></div>
+        <div class="stat-card" style="color:var(--blue)"><div class="stat-ico">📱</div><div class="stat-lbl">Active Today</div><div class="stat-val" style="color:var(--blue)">342</div></div>
+        <div class="stat-card" style="color:var(--saffron)"><div class="stat-ico">✅</div><div class="stat-lbl">Tests Done</div><div class="stat-val" style="color:var(--saffron)">4,891</div></div>
+        <div class="stat-card" style="color:var(--purple)"><div class="stat-ico">⭐</div><div class="stat-lbl">Avg Score</div><div class="stat-val" style="color:var(--purple)">68%</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-t">Students</span><input class="search-inp" placeholder="Search students..."></div>
+        <table class="tbl">
+          <thead><tr><th>Name</th><th>Mobile</th><th>Packages</th><th>Tests</th><th>Avg Score</th><th>Joined</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;border-radius:7px;background:rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue);">R</div><div><p style="font-size:13px;font-weight:600;">Ramesh Patil</p><p style="font-size:10px;color:var(--muted);">ramesh@gmail.com</p></div></div></td><td>9876543210</td><td><span class="badge bg-orange">2</span></td><td>12</td><td><span style="color:var(--green);font-weight:700;">78%</span></td><td style="font-size:11px;color:var(--muted);">Today</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;border-radius:7px;background:rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);">P</div><div><p style="font-size:13px;font-weight:600;">Priya More</p><p style="font-size:10px;color:var(--muted);">priya@gmail.com</p></div></div></td><td>9123456789</td><td><span class="badge bg-orange">1</span></td><td>5</td><td><span style="color:var(--green);font-weight:700;">91%</span></td><td style="font-size:11px;color:var(--muted);">Yesterday</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ORDERS ══ -->
+    <div class="page" id="page-orders">
+      <div class="stats-grid" style="margin-bottom:18px;">
+        <div class="stat-card" style="color:var(--green)"><div class="stat-ico">💰</div><div class="stat-lbl">Revenue</div><div class="stat-val" style="color:var(--green)">₹2.4L</div></div>
+        <div class="stat-card" style="color:var(--saffron)"><div class="stat-ico">🧾</div><div class="stat-lbl">Orders</div><div class="stat-val" style="color:var(--saffron)">86</div></div>
+        <div class="stat-card" style="color:var(--blue)"><div class="stat-ico">📱</div><div class="stat-lbl">UPI</div><div class="stat-val" style="color:var(--blue)">61</div></div>
+        <div class="stat-card" style="color:var(--purple)"><div class="stat-ico">💳</div><div class="stat-lbl">Card</div><div class="stat-val" style="color:var(--purple)">25</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-t">Recent Orders</span></div>
+        <table class="tbl"><thead><tr><th>Order ID</th><th>Student</th><th>Package</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-size:11px;color:var(--muted);">#ORD-0086</td><td>Priya More</td><td>पोलीस भरती</td><td style="color:var(--green);font-weight:700;">₹399</td><td><span class="badge bg-blue">GPay</span></td><td style="font-size:11px;color:var(--muted);">Just now</td><td><span class="badge bg-green">Paid</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted);">#ORD-0085</td><td>Ramesh Patil</td><td>तलाठी भरती</td><td style="color:var(--green);font-weight:700;">₹299</td><td><span class="badge bg-blue">UPI</span></td><td style="font-size:11px;color:var(--muted);">1 hr ago</td><td><span class="badge bg-green">Paid</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted);">#ORD-0084</td><td>Suresh Jadhav</td><td>MPSC</td><td style="color:var(--green);font-weight:700;">₹499</td><td><span class="badge bg-purple">Card</span></td><td style="font-size:11px;color:var(--muted);">2 hrs ago</td><td><span class="badge bg-orange">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="page" id="page-settings">
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-hd"><span class="card-t">🔗 Firebase Connection</span></div>
+            <div style="padding:18px;">
+              <div class="alert suc">✅ Connected to Firebase Project</div>
+              <div class="fgrid">
+                <div class="fg span2"><label>Project ID</label><input value="mez-app-prod" readonly></div>
+                <div class="fg span2"><label>Database URL</label><input value="https://mez-app-prod.firebaseio.com" readonly></div>
+                <div class="fg span2"><label>API Key</label><input type="password" value="AIzaSyXXXXXXXXXXXXX" readonly></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><span class="card-t">💳 Razorpay</span></div>
+            <div style="padding:18px;">
+              <div class="fgrid">
+                <div class="fg span2"><label>Key ID</label><input placeholder="rzp_live_XXXXX"></div>
+                <div class="fg span2"><label>Key Secret</label><input type="password" placeholder="••••••••••••"></div>
+              </div>
+              <button class="btn pr" style="margin-top:12px;">Save</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-hd"><span class="card-t">📱 App Settings</span></div>
+            <div style="padding:18px;">
+              <div class="fgrid">
+                <div class="fg span2"><label>App Name</label><input value="Maharashtra Education Zone"></div>
+                <div class="fg"><label>Support Email</label><input placeholder="support@mez.app"></div>
+                <div class="fg"><label>Version</label><input value="1.0.0"></div>
+              </div>
+              <button class="btn pr" style="margin-top:12px;">Save Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══ MODALS ══ -->
+
+<!-- Package Modal -->
+<div class="mover" id="pkgModal">
+  <div class="modal">
+    <div class="m-hd"><h3 id="pkgMTitle">New Package</h3><div class="m-cls" onclick="closeM('pkgModal')">×</div></div>
+    <div class="fgrid">
+      <div class="fg span2"><label>Package Name (मराठी)</label><input id="pName" placeholder="तलाठी भरती 2025"></div>
+      <div class="fg span2"><label>Department / विभाग</label><input id="pDept" placeholder="महसूल विभाग · Revenue Dept."></div>
+      <div class="fg"><label>Selling Price (₹)</label><input type="number" id="pPrice" placeholder="299"></div>
+      <div class="fg"><label>Original Price (₹)</label><input type="number" id="pOrig" placeholder="599"></div>
+      <div class="fg"><label>Icon (Emoji)</label><input id="pIcon" placeholder="📋" maxlength="4"></div>
+      <div class="fg"><label>Category</label>
+        <select id="pCat"><option>Revenue</option><option>Police</option><option>Health</option><option>Education</option><option>Agriculture</option><option>PSC</option><option>Other</option></select>
+      </div>
+      <div class="fg"><label>Validity (Days)</label><input type="number" id="pVal" value="365"></div>
+      <div class="fg"><label>Status</label><select id="pStat"><option>Active</option><option>Draft</option><option>Inactive</option></select></div>
+      <div class="fg span2"><label>Description</label><textarea id="pDesc" placeholder="Package description..."></textarea></div>
+    </div>
+    <div class="m-ft">
+      <button class="btn sec" onclick="closeM('pkgModal')">Cancel</button>
+      <button class="btn pr" onclick="savePkg()">💾 Save Package</button>
+    </div>
+  </div>
+</div>
+
+<!-- Test Modal -->
+<div class="mover" id="testModal">
+  <div class="modal">
+    <div class="m-hd"><h3 id="testMTitle">Add Test</h3><div class="m-cls" onclick="closeM('testModal')">×</div></div>
+    <div class="fgrid">
+      <div class="fg span2"><label>Test Name</label><input id="tName" placeholder="Mock Test 1 / Practice Set 1 / Previous Year 2023"></div>
+      <div class="fg"><label>Package</label>
+        <select id="tPkg">
+          <option>तलाठी भरती 2025</option><option>पोलीस भरती 2025</option>
+          <option>MPSC (PSI/STI/ASO)</option><option>शिक्षक भरती (TET)</option>
+          <option>आरोग्य विभाग</option><option>कृषी सेवक</option>
+        </select>
+      </div>
+      <div class="fg"><label>Test Type</label>
+        <select id="tType">
+          <option>Mock Test</option>
+          <option>Practice Set</option>
+          <option>Previous Year Paper</option>
+          <option>Topic Test</option>
+          <option>Speed Test</option>
+          <option>Mini Test</option>
+        </select>
+      </div>
+      <div class="fg"><label>Total Questions</label><input type="number" id="tQTotal" placeholder="100" value="100"></div>
+      <div class="fg"><label>Duration (minutes)</label><input type="number" id="tDur" placeholder="60" value="60"></div>
+      <div class="fg"><label>Total Marks</label><input type="number" id="tMarks" placeholder="100" value="100"></div>
+      <div class="fg"><label>Negative Marking</label>
+        <select id="tNeg"><option value="0.25">-0.25 per wrong</option><option value="0.5">-0.5 per wrong</option><option value="0">No negative</option></select>
+      </div>
+      <div class="fg"><label>Difficulty</label>
+        <select id="tDiff"><option>Easy</option><option>Medium</option><option>Hard</option><option>Mixed</option></select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select id="tStat"><option>Active</option><option>Draft</option><option>Scheduled</option></select>
+      </div>
+      <div class="fg span2"><label>Instructions (optional)</label><textarea id="tInstr" placeholder="Test instructions in Marathi or English..."></textarea></div>
+    </div>
+    <div class="m-ft">
+      <button class="btn sec" onclick="closeM('testModal')">Cancel</button>
+      <button class="btn grn" onclick="saveTest(true)">💾 Save & Add Questions</button>
+      <button class="btn pr" onclick="saveTest(false)">Save Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- Question Modal -->
+<div class="mover" id="qModal">
+  <div class="modal wide">
+    <div class="m-hd"><h3 id="qMTitle">Add Question</h3><div class="m-cls" onclick="closeM('qModal')">×</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="fg"><label>Package</label>
+        <select id="qPkg" onchange="populateTestDropdown('qTest',this.value)">
+          <option>तलाठी भरती 2025</option><option>पोलीस भरती 2025</option>
+          <option>MPSC (PSI/STI/ASO)</option><option>शिक्षक भरती (TET)</option>
+          <option>आरोग्य विभाग</option><option>कृषी सेवक</option>
+        </select>
+      </div>
+      <div class="fg"><label>Test</label>
+        <select id="qTest"><option value="">— Select Test —</option></select>
+      </div>
+      <div class="fg"><label>Tag / Category</label>
+        <select id="qTag">
+          <option>सामान्य ज्ञान</option><option>इतिहास</option><option>भूगोल</option>
+          <option>गणित</option><option>विज्ञान</option><option>मराठी</option>
+          <option>English</option><option>Current Affairs</option><option>Constitution</option>
+        </select>
+      </div>
+      <div class="fg"><label>Marks</label>
+        <select id="qMarks"><option value="1">+1 / -0.25</option><option value="2">+2 / -0.5</option><option value="1n">+1 / No Negative</option></select>
+      </div>
+      <div class="fg" style="grid-column:span 2;"><label>Question (प्रश्न)</label><textarea id="qTxt" placeholder="प्रश्न येथे लिहा... (Type question in Marathi or English)" style="min-height:65px;" oninput="livePreview()"></textarea></div>
+      <div class="fg"><label>Option A (अ)</label><input id="oA" placeholder="पहिला पर्याय" oninput="livePreview()"></div>
+      <div class="fg"><label>Option B (ब)</label><input id="oB" placeholder="दुसरा पर्याय" oninput="livePreview()"></div>
+      <div class="fg"><label>Option C (क)</label><input id="oC" placeholder="तिसरा पर्याय" oninput="livePreview()"></div>
+      <div class="fg"><label>Option D (ड)</label><input id="oD" placeholder="चौथा पर्याय" oninput="livePreview()"></div>
+      <div class="fg"><label>Correct Answer</label>
+        <select id="qAns" onchange="livePreview()">
+          <option value="0">A (अ)</option><option value="1">B (ब)</option>
+          <option value="2">C (क)</option><option value="3">D (ड)</option>
+        </select>
+      </div>
+      <div class="fg"><label>Explanation (स्पष्टीकरण)</label><textarea id="qExp" placeholder="बरोबर उत्तराचे स्पष्टीकरण..." oninput="livePreview()"></textarea></div>
+    </div>
+    <!-- Live Preview -->
+    <div style="margin-top:14px;background:var(--bg);border-radius:10px;padding:14px;border:1px solid var(--border);">
+      <p style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">LIVE PREVIEW</p>
+      <p style="font-size:14px;font-weight:600;margin-bottom:8px;" id="prevQ">Question will appear here...</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;" id="prevOpts"></div>
+      <div id="prevExp" style="margin-top:8px;padding:7px 10px;border-radius:7px;background:rgba(245,158,11,.08);border-left:3px solid var(--gold);font-size:12px;color:var(--muted);display:none;"></div>
+    </div>
+    <div class="m-ft">
+      <button class="btn sec" onclick="closeM('qModal')">Cancel</button>
+      <button class="btn grn" onclick="saveQAnother()">+ Save & Add Another</button>
+      <button class="btn pr" onclick="saveQ()">💾 Save Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="mover" id="delModal">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="font-size:46px;margin-bottom:10px;">🗑️</div>
+    <h3 style="font-family:'Syne',sans-serif;font-size:17px;margin-bottom:7px;" id="delTitle">Delete?</h3>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:22px;" id="delSub">This cannot be undone.</p>
+    <div style="display:flex;gap:9px;justify-content:center;">
+      <button class="btn sec" onclick="closeM('delModal')" style="flex:1;">Cancel</button>
+      <button class="btn dng" onclick="doDelete()" style="flex:1;">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════ DATA ══════════ */
+const L=['अ','ब','क','ड'];
+
+let packages=[
+  {id:1,name:'तलाठी भरती 2025',dept:'महसूल विभाग',price:299,orig:599,icon:'📋',cat:'Revenue',status:'Active',val:365,desc:'तलाठी परीक्षेची संपूर्ण तयारी'},
+  {id:2,name:'पोलीस भरती 2025',dept:'गृह विभाग',price:399,orig:799,icon:'👮',cat:'Police',status:'Active',val:365,desc:'पोलीस भरती परीक्षेची तयारी'},
+  {id:3,name:'MPSC (PSI/STI/ASO)',dept:'Maharashtra PSC',price:499,orig:999,icon:'🏛️',cat:'PSC',status:'Active',val:365,desc:'MPSC परीक्षांची संपूर्ण तयारी'},
+  {id:4,name:'शिक्षक भरती (TET)',dept:'शिक्षण विभाग',price:349,orig:699,icon:'👩‍🏫',cat:'Education',status:'Active',val:365,desc:'TET/D.Ed परीक्षांसाठी'},
+  {id:5,name:'आरोग्य विभाग',dept:'Public Health',price:249,orig:499,icon:'🏥',cat:'Health',status:'Draft',val:365,desc:'आरोग्य विभाग भरती'},
+  {id:6,name:'कृषी सेवक',dept:'कृषी विभाग',price:199,orig:399,icon:'🌾',cat:'Agriculture',status:'Active',val:365,desc:'कृषी सेवक परीक्षेसाठी'},
+];
+
+let tests=[
+  // तलाठी pkg=1
+  {id:101,pkgId:1,pkg:'तलाठी भरती 2025',name:'Mock Test 1',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Medium',status:'Active',instr:''},
+  {id:102,pkgId:1,pkg:'तलाठी भरती 2025',name:'Mock Test 2',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  {id:103,pkgId:1,pkg:'तलाठी भरती 2025',name:'Mock Test 3',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Medium',status:'Draft',instr:''},
+  {id:104,pkgId:1,pkg:'तलाठी भरती 2025',name:'Practice Set 1',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Easy',status:'Active',instr:''},
+  {id:105,pkgId:1,pkg:'तलाठी भरती 2025',name:'Practice Set 2',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Medium',status:'Active',instr:''},
+  {id:106,pkgId:1,pkg:'तलाठी भरती 2025',name:'Previous Year 2023',type:'Previous Year Paper',qTotal:100,dur:90,marks:100,neg:'0.25',diff:'Mixed',status:'Active',instr:''},
+  {id:107,pkgId:1,pkg:'तलाठी भरती 2025',name:'Previous Year 2022',type:'Previous Year Paper',qTotal:100,dur:90,marks:100,neg:'0.25',diff:'Mixed',status:'Active',instr:''},
+  {id:108,pkgId:1,pkg:'तलाठी भरती 2025',name:'GK Topic Test',type:'Topic Test',qTotal:40,dur:20,marks:40,neg:'0',diff:'Easy',status:'Active',instr:''},
+  {id:109,pkgId:1,pkg:'तलाठी भरती 2025',name:'Math Speed Test',type:'Speed Test',qTotal:30,dur:15,marks:30,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  // पोलीस pkg=2
+  {id:201,pkgId:2,pkg:'पोलीस भरती 2025',name:'Mock Test 1',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0.25',diff:'Medium',status:'Active',instr:''},
+  {id:202,pkgId:2,pkg:'पोलीस भरती 2025',name:'Mock Test 2',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  {id:203,pkgId:2,pkg:'पोलीस भरती 2025',name:'Mock Test 3',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0.25',diff:'Mixed',status:'Draft',instr:''},
+  {id:204,pkgId:2,pkg:'पोलीस भरती 2025',name:'Practice Set 1',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Easy',status:'Active',instr:''},
+  {id:205,pkgId:2,pkg:'पोलीस भरती 2025',name:'Previous Year 2023',type:'Previous Year Paper',qTotal:150,dur:120,marks:150,neg:'0.25',diff:'Mixed',status:'Active',instr:''},
+  // MPSC pkg=3
+  {id:301,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'Prelim Mock Test 1',type:'Mock Test',qTotal:200,dur:120,marks:200,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  {id:302,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'Prelim Mock Test 2',type:'Mock Test',qTotal:200,dur:120,marks:200,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  {id:303,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'GS Topic Test',type:'Topic Test',qTotal:50,dur:30,marks:50,neg:'0',diff:'Medium',status:'Active',instr:''},
+  // शिक्षक pkg=4
+  {id:401,pkgId:4,pkg:'शिक्षक भरती (TET)',name:'TET Paper 1 Mock',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0',diff:'Medium',status:'Active',instr:''},
+  {id:402,pkgId:4,pkg:'शिक्षक भरती (TET)',name:'TET Paper 2 Mock',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0',diff:'Medium',status:'Active',instr:''},
+  // आरोग्य pkg=5
+  {id:501,pkgId:5,pkg:'आरोग्य विभाग',name:'Mock Test 1',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Medium',status:'Draft',instr:''},
+  // कृषी pkg=6
+  {id:601,pkgId:6,pkg:'कृषी सेवक',name:'Mock Test 1',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Medium',status:'Active',instr:''},
+  {id:602,pkgId:6,pkg:'कृषी सेवक',name:'Practice Set 1',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Easy',status:'Active',instr:''},
+  {id:603,pkgId:6,pkg:'कृषी सेवक',name:'Topic Test: Crops',type:'Topic Test',qTotal:30,dur:20,marks:30,neg:'0',diff:'Easy',status:'Draft',instr:''},
+  // Extra tests for तलाठी
+  {id:110,pkgId:1,pkg:'तलाठी भरती 2025',name:'Mock Test 4',type:'Mock Test',qTotal:100,dur:60,marks:100,neg:'0.25',diff:'Hard',status:'Draft',instr:''},
+  {id:111,pkgId:1,pkg:'तलाठी भरती 2025',name:'Practice Set 3',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Easy',status:'Active',instr:''},
+  {id:112,pkgId:1,pkg:'तलाठी भरती 2025',name:'Previous Year 2021',type:'Previous Year Paper',qTotal:100,dur:90,marks:100,neg:'0.25',diff:'Mixed',status:'Active',instr:''},
+  {id:113,pkgId:1,pkg:'तलाठी भरती 2025',name:'Marathi Language Test',type:'Topic Test',qTotal:40,dur:25,marks:40,neg:'0',diff:'Medium',status:'Active',instr:''},
+  {id:114,pkgId:1,pkg:'तलाठी भरती 2025',name:'Current Affairs Test',type:'Topic Test',qTotal:30,dur:15,marks:30,neg:'0',diff:'Easy',status:'Active',instr:''},
+  // Extra पोलीस
+  {id:206,pkgId:2,pkg:'पोलीस भरती 2025',name:'Mock Test 4',type:'Mock Test',qTotal:150,dur:90,marks:150,neg:'0.25',diff:'Hard',status:'Draft',instr:''},
+  {id:207,pkgId:2,pkg:'पोलीस भरती 2025',name:'Practice Set 2',type:'Practice Set',qTotal:50,dur:30,marks:50,neg:'0',diff:'Medium',status:'Active',instr:''},
+  {id:208,pkgId:2,pkg:'पोलीस भरती 2025',name:'Speed Test 1',type:'Speed Test',qTotal:30,dur:12,marks:30,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  // Extra MPSC
+  {id:304,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'Prelim Mock Test 3',type:'Mock Test',qTotal:200,dur:120,marks:200,neg:'0.25',diff:'Hard',status:'Active',instr:''},
+  {id:305,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'Mains Practice 1',type:'Practice Set',qTotal:100,dur:60,marks:100,neg:'0',diff:'Medium',status:'Draft',instr:''},
+  {id:306,pkgId:3,pkg:'MPSC (PSI/STI/ASO)',name:'Previous Year 2022',type:'Previous Year Paper',qTotal:200,dur:120,marks:200,neg:'0.25',diff:'Mixed',status:'Active',instr:''},
+];
+
+let questions=[
+  {id:1,pkgId:1,testId:101,pkg:'तलाठी भरती 2025',test:'Mock Test 1',tag:'सामान्य ज्ञान',q:'महाराष्ट्रातील सर्वात मोठे धरण कोणते?',opts:['कोयना','जायकवाडी','उजनी','भंडारदरा'],ans:1,exp:'जायकवाडी धरण हे महाराष्ट्रातील सर्वात मोठे धरण आहे.',marks:'1'},
+  {id:2,pkgId:1,testId:101,pkg:'तलाठी भरती 2025',test:'Mock Test 1',tag:'इतिहास',q:'छत्रपती शिवाजी महाराजांचा जन्म कुठे झाला?',opts:['रायगड','तोरणा','शिवनेरी','प्रतापगड'],ans:2,exp:'शिवाजी महाराजांचा जन्म शिवनेरी किल्ल्यावर झाला.',marks:'1'},
+  {id:3,pkgId:1,testId:104,pkg:'तलाठी भरती 2025',test:'Practice Set 1',tag:'भूगोल',q:'गोदावरी नदीचा उगम कोठे होतो?',opts:['महाबळेश्वर','त्र्यंबकेश्वर','भीमाशंकर','लोणावळा'],ans:1,exp:'गोदावरी नदीचा उगम नाशिक जिल्ह्यातील त्र्यंबकेश्वर येथे होतो.',marks:'1'},
+  {id:4,pkgId:2,testId:201,pkg:'पोलीस भरती 2025',test:'Mock Test 1',tag:'सामान्य ज्ञान',q:'महाराष्ट्राची राजधानी कोणती?',opts:['पुणे','नागपूर','मुंबई','औरंगाबाद'],ans:2,exp:'मुंबई ही महाराष्ट्र राज्याची राजधानी आहे.',marks:'1'},
+  {id:5,pkgId:3,testId:301,pkg:'MPSC (PSI/STI/ASO)',test:'Prelim Mock Test 1',tag:'सामान्य ज्ञान',q:'महाराष्ट्राची स्थापना कधी झाली?',opts:['1 मे 1958','1 मे 1960','15 ऑगस्ट 1960','26 जानेवारी 1950'],ans:1,exp:'महाराष्ट्र राज्याची स्थापना 1 मे 1960 रोजी झाली.',marks:'1'},
+];
+
+let currentPkg=null, currentTest=null, editPkg=null, editTest=null, editQ=null, delTarget=null;
+
+/* ══════════ NAV ══════════ */
+const topBtnLabels={dashboard:'+ New Package',packages:'+ New Package',tests:'+ Add Test',questions:'+ Add Question',bulk:'⬇️ Template',students:'Export CSV',orders:'Export CSV',settings:'Save All'};
+
+function nav(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.sbi').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('pgTitle').textContent=id.charAt(0).toUpperCase()+id.slice(1);
+  document.getElementById('topBtn').textContent=topBtnLabels[id]||'+ Add';
+  if(id==='packages'){renderPkgGrid();}
+  if(id==='tests'){renderAllTestsTable();}
+  if(id==='questions'){renderAllQsList();}
+  if(id==='dashboard'){renderDashboard();}
+}
+
+function topAction(){
+  const id=document.querySelector('.page.active').id.replace('page-','');
+  if(id==='dashboard'||id==='packages') openPkgModal();
+  else if(id==='tests') openTestModal();
+  else if(id==='questions') openQModal();
+  else if(id==='bulk') dlTemplate();
+}
+
+/* ══════════ LEVELS (Packages page) ══════════ */
+function goLevel(lvl){
+  document.getElementById('lvl-packages').style.display=lvl==='packages'?'block':'none';
+  document.getElementById('lvl-tests').style.display=lvl==='tests'?'block':'none';
+  document.getElementById('lvl-questions').style.display=lvl==='questions'?'block':'none';
+  if(lvl==='packages') renderPkgGrid();
+  if(lvl==='tests' && currentPkg) renderTestLevel(currentPkg);
+}
+
+/* ══════════ PACKAGES ══════════ */
+const typeColors={
+  'Mock Test':'bg-blue','Practice Set':'bg-green','Previous Year Paper':'bg-gold',
+  'Topic Test':'bg-purple','Speed Test':'bg-pink','Mini Test':'bg-teal'
+};
+
+function renderPkgGrid(){
+  goLevel('packages');
+  const g=document.getElementById('pkgGrid');
+  g.innerHTML=packages.map(p=>{
+    const ts=tests.filter(t=>t.pkgId===p.id);
+    const qs=questions.filter(q=>q.pkgId===p.id);
+    return `<div class="pkg-card" onclick="openPkgLevel(${p.id})">
+      <div class="pk-ico">${p.icon}</div>
+      <div class="pk-nm">${p.name}</div>
+      <div class="pk-meta">${p.dept}</div>
+      <div class="pk-stats">
+        <div class="pk-stat">Tests: <span>${ts.length}</span></div>
+        <div class="pk-stat">Q: <span>${qs.length}</span></div>
+      </div>
+      <div class="pk-price">₹${p.price}</div>
+      <div class="pk-status"><span class="badge ${p.status==='Active'?'bg-green':p.status==='Draft'?'bg-orange':'bg-red'}">${p.status}</span></div>
+    </div>`;
+  }).join('')+`<div class="pkg-add-card" onclick="openPkgModal()"><div style="font-size:28px;opacity:.4;">+</div><p>New Package</p></div>`;
+  updateCounts();
+}
+
+function openPkgLevel(id){
+  currentPkg=packages.find(p=>p.id===id);
+  if(!currentPkg) return;
+  renderTestLevel(currentPkg);
+}
+
+function renderTestLevel(pkg){
+  goLevel('tests');
+  document.getElementById('bc-pkg').textContent=pkg.icon+' '+pkg.name;
+  document.getElementById('bc-pkg2').textContent=pkg.icon+' '+pkg.name;
+  document.getElementById('testLvlTitle').textContent=pkg.name+' — Tests';
+  document.getElementById('tPkg').value=pkg.name;
+
+  const ts=tests.filter(t=>t.pkgId===pkg.id);
+  const qs=questions.filter(q=>q.pkgId===pkg.id);
+  document.getElementById('testLvlMeta').textContent=ts.length+' tests · '+qs.length+' questions';
+  document.getElementById('pi-tests').textContent=ts.length;
+  document.getElementById('pi-qs').textContent=qs.length;
+  document.getElementById('pi-price').textContent='₹'+pkg.price;
+  document.getElementById('pi-status').textContent=pkg.status;
+
+  // Type breakdown strip
+  const typeCount={};
+  ts.forEach(t=>typeCount[t.type]=(typeCount[t.type]||0)+1);
+  const typeChips=Object.entries(typeCount).map(([tp,cnt])=>
+    `<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:6px;">
+      <span class="badge ${typeColors[tp]||'bg-blue'}" style="font-size:9px;">${tp}</span>
+      <span style="font-size:13px;font-weight:800;">${cnt}</span>
+    </div>`
+  ).join('');
+  document.getElementById('typeBreakdown').innerHTML=typeChips||'<span style="color:var(--muted);font-size:12px;">No tests yet — add your first test!</span>';
+
+  // Type filter chips
+  const types=[...new Set(ts.map(t=>t.type))];
+  document.getElementById('testTypeFilter').innerHTML=
+    `<div class="badge bg-blue" style="cursor:pointer;padding:5px 12px;" onclick="filterTestCards('')">All (${ts.length})</div>`+
+    types.map(tp=>`<div class="badge ${typeColors[tp]||'bg-blue'}" style="cursor:pointer;padding:5px 12px;" onclick="filterTestCards('${tp}')">${tp} (${ts.filter(t=>t.type===tp).length})</div>`).join('');
+
+  renderTestCards(ts);
+}
+
+function renderTestCards(ts){
+  const g=document.getElementById('testGrid');
+  if(!ts.length){
+    g.innerHTML=`<div class="test-add-card" onclick="openTestModal()" style="grid-column:span 3;min-height:120px;flex-direction:column;gap:8px;">
+      <div style="font-size:28px;opacity:.4;">+</div>
+      <p>Add your first test</p>
+    </div>`;
+    return;
+  }
+  g.innerHTML=ts.map(t=>{
+    const qs=questions.filter(q=>q.testId===t.id);
+    const pct=Math.round(qs.length/Math.max(t.qTotal,1)*100);
+    const pctCapped=Math.min(pct,100);
+    const barColor=pct>=100?'var(--green)':pct>=50?'var(--gold)':'var(--blue)';
+    return `<div class="test-card" onclick="openTestLevel(${t.id})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <span class="badge ${typeColors[t.type]||'bg-blue'}">${t.type}</span>
+        <div class="tc-actions">
+          <button class="ab edit" onclick="event.stopPropagation();openEditTest(${t.id})" title="Edit">✏️</button>
+          <button class="ab del" onclick="event.stopPropagation();askDel('test',${t.id},'${t.name.replace(/'/g,"\\\'")}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <div class="tc-name">${t.name}</div>
+      <div class="tc-meta" style="margin-bottom:10px;">
+        <div class="tc-meta-item">⏱️ ${t.dur}m</div>
+        <div class="tc-meta-item">📊 ${t.marks}M</div>
+        <div class="tc-meta-item">🎯 ${t.diff}</div>
+        <div class="tc-meta-item">➖ -${t.neg}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-size:11px;color:var(--muted);">Questions</span>
+        <span style="font-size:11px;font-weight:700;color:${barColor};">${qs.length}/${t.qTotal}</span>
+      </div>
+      <div class="prog-bar" style="margin-bottom:10px;">
+        <div class="prog-fill" style="width:${pctCapped}%;background:${barColor};"></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        <span class="badge ${t.status==='Active'?'bg-green':t.status==='Draft'?'bg-orange':'bg-gold'}">${t.status}</span>
+        ${pct>=100?'<span class="badge bg-green">✓ Complete</span>':qs.length===0?'<span class="badge bg-red">No questions</span>':`<span class="badge bg-orange">${t.qTotal-qs.length} pending</span>`}
+      </div>
+    </div>`;
+  }).join('')+`<div class="test-add-card" onclick="openTestModal()">
+    <div style="font-size:22px;opacity:.5;">+</div>
+    <span>Add Test</span>
+  </div>`;
+}
+
+function filterTestCards(type){
+  const ts=tests.filter(t=>t.pkgId===currentPkg.id && (!type||t.type===type));
+  renderTestCards(ts);
+}
+
+/* ══════════ TEST LEVEL (Questions) ══════════ */
+function openTestLevel(id){
+  currentTest=tests.find(t=>t.id===id);
+  if(!currentTest) return;
+  goLevel('questions');
+  document.getElementById('bc-test').textContent=currentTest.name;
+  document.getElementById('qLvlTitle').textContent=currentTest.name;
+  const qs=questions.filter(q=>q.testId===id);
+  document.getElementById('qLvlMeta').textContent=qs.length+'/'+currentTest.qTotal+' questions · '+currentTest.dur+' min · '+currentTest.marks+' marks';
+  document.getElementById('qTest').value=currentTest.name;
+  document.getElementById('qPkg').value=currentTest.pkg;
+
+  // Info strip
+  document.getElementById('testInfoStrip').innerHTML=[
+    `<span class="badge ${typeColors[currentTest.type]||'bg-blue'}">${currentTest.type}</span>`,
+    `<span class="pill">⏱️ ${currentTest.dur} min</span>`,
+    `<span class="pill">📊 ${currentTest.marks} marks</span>`,
+    `<span class="pill">🎯 ${currentTest.diff}</span>`,
+    `<span class="pill">➖ -${currentTest.neg} negative</span>`,
+    `<span class="badge ${currentTest.status==='Active'?'bg-green':currentTest.status==='Draft'?'bg-orange':'bg-gold'}">${currentTest.status}</span>`,
+  ].join('');
+
+  renderTestQs(qs);
+}
+
+function renderTestQs(qs){
+  const el=document.getElementById('testQsList');
+  if(!qs.length){
+    el.innerHTML=`<div class="empty"><div class="empty-ico">❓</div><h3>No questions yet</h3><p>Add manually or bulk upload CSV</p></div>`;
+    return;
+  }
+  el.innerHTML=qs.map((q,i)=>qItemHTML(q,i)).join('');
+}
+
+function filterTestQs(val){
+  const qs=questions.filter(q=>q.testId===currentTest.id&&q.q.toLowerCase().includes(val.toLowerCase()));
+  renderTestQs(qs);
+}
+
+/* ══════════ ALL TESTS TABLE ══════════ */
+function renderAllTestsTable(filter='',pkgF='',typeF=''){
+  let ts=tests.filter(t=>
+    (!filter||t.name.toLowerCase().includes(filter.toLowerCase())||t.pkg.toLowerCase().includes(filter.toLowerCase()))&&
+    (!pkgF||t.pkg.includes(pkgF))&&
+    (!typeF||t.type===typeF)
+  );
+  const tb=document.getElementById('allTestsTbody');
+  tb.innerHTML=ts.map(t=>{
+    const qs=questions.filter(q=>q.testId===t.id);
+    return `<tr>
+      <td><strong style="font-size:13px;">${t.name}</strong></td>
+      <td style="font-size:12px;color:var(--muted);">${t.pkg}</td>
+      <td><span class="badge ${typeColors[t.type]||'bg-blue'}">${t.type}</span></td>
+      <td><span style="font-weight:700;">${qs.length}</span><span style="color:var(--muted);font-size:11px;">/${t.qTotal}</span></td>
+      <td style="font-size:12px;">${t.dur} min</td>
+      <td><span class="badge ${t.status==='Active'?'bg-green':t.status==='Draft'?'bg-orange':'bg-gold'}">${t.status}</span></td>
+      <td><div class="act-btns">
+        <button class="ab add" onclick="openTestLevelDirect(${t.id})" title="Add Questions">❓</button>
+        <button class="ab edit" onclick="openEditTest(${t.id})" title="Edit">✏️</button>
+        <button class="ab del" onclick="askDel('test',${t.id},'${t.name}')" title="Delete">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('allTestBadge').textContent=ts.length;
+  document.getElementById('testCntSb').textContent=tests.length;
+}
+
+function openTestLevelDirect(id){
+  nav('packages',document.querySelector('[onclick*=packages]'));
+  currentPkg=packages.find(p=>p.id===tests.find(t=>t.id===id).pkgId);
+  openTestLevel(id);
+}
+
+function filterAllTests(v){renderAllTestsTable(v);}
+function filterTestByPkg(v){renderAllTestsTable('',v);}
+function filterByTestType(v){renderAllTestsTable('','',v);}
+
+/* ══════════ ALL QUESTIONS ══════════ */
+function qItemHTML(q,i){
+  return `<div class="q-item" id="qi${q.id}">
+    <div class="q-hd">
+      <div class="q-num">${i+1}</div>
+      <div class="q-txt">${q.q}</div>
+      <div class="q-acts">
+        <button class="ab edit" onclick="openEditQ(${q.id})" title="Edit">✏️</button>
+        <button class="ab del" onclick="askDel('question',${q.id},'Q${i+1}')" title="Delete">🗑️</button>
+      </div>
+    </div>
+    <div class="q-opts">
+      ${q.opts.map((o,j)=>`<div class="q-opt${j===q.ans?' cor':''}"><span style="font-weight:800;font-size:10px;">${L[j]}</span> ${o}${j===q.ans?' ✓':''}</div>`).join('')}
+    </div>
+    <div class="q-exp">💡 ${q.exp}</div>
+    <div class="q-tags">
+      <span class="pill">${q.pkg}</span>
+      <span class="pill">${q.test||''}</span>
+      <span class="pill">${q.tag}</span>
+    </div>
+  </div>`;
+}
+
+function renderAllQsList(filter='',pkgF=''){
+  let qs=questions.filter(q=>
+    (!filter||q.q.toLowerCase().includes(filter.toLowerCase()))&&
+    (!pkgF||q.pkg.includes(pkgF))
+  );
+  const el=document.getElementById('allQsList');
+  el.innerHTML=qs.length?qs.map((q,i)=>qItemHTML(q,i)).join('')
+    :`<div class="empty"><div class="empty-ico">❓</div><h3>No questions</h3><p>Add manually or bulk upload</p></div>`;
+  document.getElementById('allQBadge').textContent=qs.length;
+  document.getElementById('qCntSb').textContent=questions.length;
+}
+
+function filterAllQs(v){renderAllQsList(v);}
+function filterQByPkg(v){renderAllQsList('',v);}
+
+/* ══════════ DASHBOARD ══════════ */
+function renderDashboard(){
+  const tb=document.getElementById('dashPkgTable');
+  tb.innerHTML=packages.map(p=>{
+    const ts=tests.filter(t=>t.pkgId===p.id);
+    const qs=questions.filter(q=>q.pkgId===p.id);
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:6px;"><span>${p.icon}</span><strong style="font-size:13px;">${p.name}</strong></div></td>
+      <td><strong style="color:var(--blue);">${ts.length}</strong></td>
+      <td>${qs.length}</td>
+      <td><strong style="color:var(--saffron);">₹${p.price}</strong></td>
+      <td><span class="badge ${p.status==='Active'?'bg-green':p.status==='Draft'?'bg-orange':'bg-red'}">${p.status}</span></td>
+    </tr>`;
+  }).join('');
+  const tl=document.getElementById('dashTestList');
+  const recent=tests.slice(-5).reverse();
+  tl.innerHTML=recent.map(t=>`
+    <div style="padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.03);display:flex;align-items:center;gap:10px;">
+      <div style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">📝</div>
+      <div style="flex:1;">
+        <p style="font-size:12px;font-weight:600;">${t.name}</p>
+        <p style="font-size:10px;color:var(--muted);">${t.pkg} · ${t.type}</p>
+      </div>
+      <span class="badge ${typeColors[t.type]||'bg-blue'}" style="font-size:9px;">${t.type}</span>
+    </div>`).join('');
+  document.getElementById('dashTestCnt').textContent=tests.length;
+}
+
+/* ══════════ PACKAGE MODAL ══════════ */
+function openPkgModal(id){
+  editPkg=id?packages.find(p=>p.id===id):null;
+  document.getElementById('pkgMTitle').textContent=editPkg?'Edit Package':'New Package';
+  if(editPkg){
+    document.getElementById('pName').value=editPkg.name;
+    document.getElementById('pDept').value=editPkg.dept;
+    document.getElementById('pPrice').value=editPkg.price;
+    document.getElementById('pOrig').value=editPkg.orig;
+    document.getElementById('pIcon').value=editPkg.icon;
+    document.getElementById('pStat').value=editPkg.status;
+    document.getElementById('pVal').value=editPkg.val;
+    document.getElementById('pDesc').value=editPkg.desc;
+  } else {
+    ['pName','pDept','pPrice','pOrig','pDesc'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('pIcon').value='📋';
+    document.getElementById('pVal').value=365;
+  }
+  document.getElementById('pkgModal').classList.add('open');
+}
+
+function savePkg(){
+  const name=document.getElementById('pName').value.trim();
+  if(!name){alert('Package name required');return;}
+  if(editPkg){
+    Object.assign(editPkg,{name,dept:document.getElementById('pDept').value,
+      price:+document.getElementById('pPrice').value,orig:+document.getElementById('pOrig').value,
+      icon:document.getElementById('pIcon').value||'📋',cat:document.getElementById('pCat').value,
+      status:document.getElementById('pStat').value,val:+document.getElementById('pVal').value,
+      desc:document.getElementById('pDesc').value});
+    toast('Package updated ✅');
+  } else {
+    const np={id:Date.now(),name,dept:document.getElementById('pDept').value,
+      price:+document.getElementById('pPrice').value,orig:+document.getElementById('pOrig').value,
+      icon:document.getElementById('pIcon').value||'📋',cat:document.getElementById('pCat').value,
+      status:document.getElementById('pStat').value,val:+document.getElementById('pVal').value,
+      desc:document.getElementById('pDesc').value};
+    packages.push(np);
+    toast('Package created ✅');
+  }
+  closeM('pkgModal');
+  renderPkgGrid();
+  populatePkgDropdowns();
+  updateCounts();
+}
+
+/* ══════════ TEST MODAL ══════════ */
+function openTestModal(){
+  editTest=null;
+  document.getElementById('testMTitle').textContent='Add Test';
+  ['tName','tInstr'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('tQTotal').value=100;
+  document.getElementById('tDur').value=60;
+  document.getElementById('tMarks').value=100;
+  if(currentPkg) document.getElementById('tPkg').value=currentPkg.name;
+  document.getElementById('testModal').classList.add('open');
+}
+
+function openEditTest(id){
+  editTest=tests.find(t=>t.id===id);
+  if(!editTest) return;
+  document.getElementById('testMTitle').textContent='Edit Test';
+  document.getElementById('tName').value=editTest.name;
+  document.getElementById('tPkg').value=editTest.pkg;
+  document.getElementById('tType').value=editTest.type;
+  document.getElementById('tQTotal').value=editTest.qTotal;
+  document.getElementById('tDur').value=editTest.dur;
+  document.getElementById('tMarks').value=editTest.marks;
+  document.getElementById('tNeg').value=editTest.neg;
+  document.getElementById('tDiff').value=editTest.diff;
+  document.getElementById('tStat').value=editTest.status;
+  document.getElementById('tInstr').value=editTest.instr||'';
+  document.getElementById('testModal').classList.add('open');
+}
+
+function saveTest(gotoQs){
+  const name=document.getElementById('tName').value.trim();
+  if(!name){alert('Test name required');return;}
+  const pkg=document.getElementById('tPkg').value;
+  const pkgObj=packages.find(p=>p.name===pkg);
+  if(editTest){
+    Object.assign(editTest,{name,pkg,type:document.getElementById('tType').value,
+      qTotal:+document.getElementById('tQTotal').value,dur:+document.getElementById('tDur').value,
+      marks:+document.getElementById('tMarks').value,neg:document.getElementById('tNeg').value,
+      diff:document.getElementById('tDiff').value,status:document.getElementById('tStat').value,
+      instr:document.getElementById('tInstr').value});
+    toast('Test updated ✅');
+  } else {
+    const nt={id:Date.now(),pkgId:pkgObj?pkgObj.id:0,pkg,name,type:document.getElementById('tType').value,
+      qTotal:+document.getElementById('tQTotal').value,dur:+document.getElementById('tDur').value,
+      marks:+document.getElementById('tMarks').value,neg:document.getElementById('tNeg').value,
+      diff:document.getElementById('tDiff').value,status:document.getElementById('tStat').value,
+      instr:document.getElementById('tInstr').value};
+    tests.push(nt);
+    if(gotoQs){ currentTest=nt; }
+    toast('Test created ✅');
+  }
+  closeM('testModal');
+  updateCounts();
+  if(currentPkg) renderTestLevel(currentPkg);
+  renderAllTestsTable();
+  if(gotoQs && currentTest){
+    nav('packages',document.querySelector('[onclick*=packages]'));
+    if(!currentPkg) currentPkg=packages.find(p=>p.id===currentTest.pkgId);
+    openTestLevel(currentTest.id);
+  }
+}
+
+/* ══════════ QUESTION MODAL ══════════ */
+function openQModal(){
+  editQ=null;
+  document.getElementById('qMTitle').textContent='Add Question';
+  ['qTxt','oA','oB','oC','oD','qExp'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('qAns').value='0';
+  const pkg=currentPkg?currentPkg.name:packages[0]?.name||'';
+  document.getElementById('qPkg').value=pkg;
+  populateTestDropdown('qTest',pkg,currentTest?currentTest.name:'');
+  livePreview();
+  document.getElementById('qModal').classList.add('open');
+}
+
+function openEditQ(id){
+  editQ=questions.find(q=>q.id===id);
+  if(!editQ) return;
+  document.getElementById('qMTitle').textContent='Edit Question';
+  document.getElementById('qTxt').value=editQ.q;
+  document.getElementById('oA').value=editQ.opts[0];
+  document.getElementById('oB').value=editQ.opts[1];
+  document.getElementById('oC').value=editQ.opts[2];
+  document.getElementById('oD').value=editQ.opts[3];
+  document.getElementById('qAns').value=editQ.ans;
+  document.getElementById('qExp').value=editQ.exp;
+  document.getElementById('qPkg').value=editQ.pkg;
+  populateTestDropdown('qTest',editQ.pkg,editQ.test||'');
+  document.getElementById('qTag').value=editQ.tag;
+  document.getElementById('qMarks').value=editQ.marks||'1';
+  livePreview();
+  document.getElementById('qModal').classList.add('open');
+}
+
+function openBulkForTest(){
+  nav('bulk',document.querySelector('[onclick*=bulk]'));
+  if(currentPkg) document.getElementById('bulkPkg').value=currentPkg.name;
+  if(currentTest) document.getElementById('bulkTest').value=currentTest.name;
+}
+
+function livePreview(){
+  const q=document.getElementById('qTxt').value||'Question will appear here...';
+  const opts=[document.getElementById('oA').value,document.getElementById('oB').value,
+               document.getElementById('oC').value,document.getElementById('oD').value];
+  const ans=+document.getElementById('qAns').value;
+  const exp=document.getElementById('qExp').value;
+  document.getElementById('prevQ').textContent=q;
+  document.getElementById('prevOpts').innerHTML=opts.map((o,i)=>
+    `<div style="padding:5px 9px;border-radius:7px;font-size:11px;background:${i===ans?'rgba(34,197,94,.12)':'var(--card2)'};border:1px solid ${i===ans?'rgba(34,197,94,.3)':'var(--border)'};color:${i===ans?'var(--green)':'var(--muted)'};">
+      <strong>${L[i]}</strong> ${o||'—'}${i===ans?' ✓':''}
+    </div>`).join('');
+  const pe=document.getElementById('prevExp');
+  if(exp){pe.style.display='block';pe.textContent='💡 '+exp;}else pe.style.display='none';
+}
+
+function collectQ(){
+  return {
+    pkg:document.getElementById('qPkg').value,
+    test:document.getElementById('qTest').value,
+    tag:document.getElementById('qTag').value,
+    q:document.getElementById('qTxt').value.trim(),
+    opts:[document.getElementById('oA').value.trim(),document.getElementById('oB').value.trim(),
+          document.getElementById('oC').value.trim(),document.getElementById('oD').value.trim()],
+    ans:+document.getElementById('qAns').value,
+    exp:document.getElementById('qExp').value.trim(),
+    marks:document.getElementById('qMarks').value,
+  };
+}
+
+function getTestId(pkg,testName){
+  const t=tests.find(t=>t.pkg===pkg&&t.name===testName);
+  return t?t.id:0;
+}
+function getPkgId(pkg){
+  const p=packages.find(p=>p.name===pkg);
+  return p?p.id:0;
+}
+
+function validateQ(d){
+  if(!d.q){alert('Question required');return false;}
+  if(d.opts.some(o=>!o)){alert('All 4 options required');return false;}
+  if(!d.exp){alert('Explanation required');return false;}
+  return true;
+}
+
+function saveQ(){
+  const d=collectQ();
+  if(!validateQ(d)) return;
+  if(editQ){
+    Object.assign(editQ,{...d,pkgId:getPkgId(d.pkg),testId:getTestId(d.pkg,d.test)});
+    toast('Question updated ✅');
+  } else {
+    questions.push({id:Date.now(),...d,pkgId:getPkgId(d.pkg),testId:getTestId(d.pkg,d.test)});
+    toast('Question saved ✅');
+  }
+  closeM('qModal');
+  if(currentTest) openTestLevel(currentTest.id);
+  renderAllQsList();
+  updateCounts();
+}
+
+function saveQAnother(){
+  const d=collectQ();
+  if(!validateQ(d)) return;
+  questions.push({id:Date.now(),...d,pkgId:getPkgId(d.pkg),testId:getTestId(d.pkg,d.test)});
+  toast('Saved! Add another →');
+  ['qTxt','oA','oB','oC','oD','qExp'].forEach(i=>document.getElementById(i).value='');
+  livePreview();
+  if(currentTest) openTestLevel(currentTest.id);
+  renderAllQsList();
+  updateCounts();
+}
+
+/* ══════════ DELETE ══════════ */
+function askDel(type,id,label){
+  delTarget={type,id};
+  document.getElementById('delTitle').textContent=type==='package'?'Delete Package?':type==='test'?'Delete Test?':'Delete Question?';
+  document.getElementById('delSub').textContent='"'+label+'" will be permanently deleted.';
+  document.getElementById('delModal').classList.add('open');
+}
+
+function doDelete(){
+  if(!delTarget) return;
+  if(delTarget.type==='package'){
+    packages=packages.filter(p=>p.id!==delTarget.id);
+    tests=tests.filter(t=>t.pkgId!==delTarget.id);
+    questions=questions.filter(q=>q.pkgId!==delTarget.id);
+    renderPkgGrid();
+    toast('Package deleted');
+  } else if(delTarget.type==='test'){
+    tests=tests.filter(t=>t.id!==delTarget.id);
+    questions=questions.filter(q=>q.testId!==delTarget.id);
+    if(currentPkg) renderTestLevel(currentPkg);
+    renderAllTestsTable();
+    toast('Test deleted');
+  } else {
+    questions=questions.filter(q=>q.id!==delTarget.id);
+    if(currentTest) openTestLevel(currentTest.id);
+    renderAllQsList();
+    toast('Question deleted');
+  }
+  closeM('delModal');
+  updateCounts();
+}
+
+/* ══════════ BULK ══════════ */
+function doDrag(e,ov){e.preventDefault();document.getElementById('upZone').classList.toggle('dov',ov);}
+function doDrop(e){e.preventDefault();doDrag(e,false);const f=e.dataTransfer.files[0];if(f)processFile(f);}
+function doFile(e){const f=e.target.files[0];if(f)processFile(f);}
+function processFile(f){
+  const pkg=document.getElementById('bulkPkg').value;
+  if(!pkg){alert('Select a package first');return;}
+  const prog=document.getElementById('upProg');
+  prog.style.display='block';
+  document.getElementById('upFile').textContent=f.name;
+  let pct=0;
+  const fill=document.getElementById('upFill'),pctEl=document.getElementById('upPct');
+  const iv=setInterval(()=>{pct=Math.min(pct+20,90);fill.style.width=pct+'%';pctEl.textContent=pct+'%';if(pct>=90)clearInterval(iv);},80);
+  setTimeout(()=>{fill.style.width='100%';pctEl.textContent='100%';clearInterval(iv);showCSVPrev();},800);
+}
+function showCSVPrev(){
+  document.getElementById('csvPrevCard').style.display='block';
+  document.getElementById('csvGood').textContent='3 valid';
+  document.getElementById('csvBad').textContent='0 errors';
+  document.getElementById('csvPrevContent').innerHTML=`<table class="csv-tbl">
+    <thead><tr><th>Q</th><th>A</th><th>B</th><th>C</th><th>D</th><th>Ans</th><th>Exp</th><th>Tag</th></tr></thead>
+    <tbody>
+      <tr><td>महाराष्ट्राची राजधानी?</td><td>पुणे</td><td style="color:var(--green);">मुंबई</td><td>नागपूर</td><td>औरंगाबाद</td><td style="color:var(--green);">b</td><td>मुंबई राजधानी...</td><td>GK</td></tr>
+      <tr><td>स्वातंत्र्यदिन?</td><td style="color:var(--green);">15 ऑगस्ट</td><td>26 जाने</td><td>2 ऑक्टो</td><td>14 नोव्हें</td><td style="color:var(--green);">a</td><td>1947 मध्ये...</td><td>इतिहास</td></tr>
+      <tr><td>गोदावरी उगम?</td><td>महाबळेश्वर</td><td style="color:var(--green);">त्र्यंबकेश्वर</td><td>भीमाशंकर</td><td>लोणावळा</td><td style="color:var(--green);">b</td><td>नाशिक जिल्हा...</td><td>भूगोल</td></tr>
+    </tbody>
+  </table>`;
+}
+function doImport(){
+  const pkg=document.getElementById('bulkPkg').value;
+  const testName=document.getElementById('bulkTest').value;
+  const pkgId=getPkgId(pkg);
+  const testId=getTestId(pkg,testName);
+  const sample=[
+    {q:'महाराष्ट्राची राजधानी कोणती?',opts:['पुणे','मुंबई','नागपूर','औरंगाबाद'],ans:1,exp:'मुंबई राजधानी आहे.',tag:'सामान्य ज्ञान'},
+    {q:'स्वातंत्र्यदिन कधी आहे?',opts:['15 ऑगस्ट','26 जानेवारी','2 ऑक्टोबर','14 नोव्हेंबर'],ans:0,exp:'15 ऑगस्ट 1947 रोजी स्वातंत्र्य मिळाले.',tag:'इतिहास'},
+    {q:'गोदावरी नदीचा उगम?',opts:['महाबळेश्वर','त्र्यंबकेश्वर','भीमाशंकर','लोणावळा'],ans:1,exp:'त्र्यंबकेश्वर, नाशिक.',tag:'भूगोल'},
+  ];
+  sample.forEach(s=>questions.push({id:Date.now()+Math.random(),pkgId,testId,pkg,test:testName,marks:'1',...s}));
+  cancelImport();
+  updateCounts();
+  renderAllQsList();
+  toast('3 questions imported ✅');
+}
+function cancelImport(){document.getElementById('csvPrevCard').style.display='none';document.getElementById('upProg').style.display='none';}
+function dlTemplate(){
+  const csv='question,option_a,option_b,option_c,option_d,correct,explanation,tag,marks\nExample question,Opt A,Opt B,Opt C,Opt D,a,Explanation here,सामान्य ज्ञान,1';
+  dl(csv,'mez_template.csv');toast('Template downloaded ✅');
+}
+function dlSample(){
+  const csv='question,option_a,option_b,option_c,option_d,correct,explanation,tag,marks\nमहाराष्ट्राची राजधानी?,पुणे,मुंबई,नागपूर,औरंगाबाद,b,मुंबई राजधानी आहे,सामान्य ज्ञान,1\nगोदावरी उगम?,महाबळेश्वर,त्र्यंबकेश्वर,भीमाशंकर,लोणावळा,b,त्र्यंबकेश्वर नाशिक,भूगोल,1';
+  dl(csv,'mez_sample.csv');toast('Sample downloaded ✅');
+}
+function dl(content,filename){const b=new Blob([content],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click();}
+
+/* ══════════ DYNAMIC DROPDOWN HELPERS ══════════ */
+function populateTestDropdown(selectId, pkgName, selectedVal){
+  const sel=document.getElementById(selectId);
+  const pkgTests=tests.filter(t=>t.pkg===pkgName);
+  sel.innerHTML='<option value="">— Select Test —</option>'+
+    pkgTests.map(t=>`<option value="${t.name}"${t.name===selectedVal?' selected':''}>${t.name} (${t.type})</option>`).join('');
+}
+
+function populatePkgDropdowns(){
+  // Keep all package selects updated when packages change
+  const pkgNames=packages.map(p=>p.name);
+  ['qPkg','tPkg','bulkPkg'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const cur=el.value;
+    el.innerHTML=(id==='bulkPkg'?'<option value="">Select Package...</option>':'')+
+      pkgNames.map(n=>`<option${n===cur?' selected':''}>${n}</option>`).join('');
+  });
+}
+
+/* ══════════ MISC ══════════ */
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+function updateCounts(){
+  document.getElementById('pkgCntSb').textContent=packages.length;
+  document.getElementById('testCntSb').textContent=tests.length;
+  document.getElementById('qCntSb').textContent=questions.length;
+}
+
+/* ══════════ INIT ══════════ */
+renderPkgGrid();
+renderDashboard();
+populatePkgDropdowns();
+updateCounts();
+</script>
+</body>
+</html>
